@@ -2,7 +2,7 @@ import * as SunCalc from "suncalc";
 
 type FishType = "Щука" | "Карп" | "Лещ" | "Судак" | "Общая";
 
-export function getSolunarForecast(lat: number, lon: number, date: Date = new Date(), fish: FishType = "Общая") {
+export function getSolunarForecast(lat: number, lon: number, date: Date = new Date(), fish: FishType = "Общая", waterType: string = "unknown") {
   const moonIllumination = SunCalc.getMoonIllumination(date);
   const sunTimes = SunCalc.getTimes(date, lat, lon);
   
@@ -44,6 +44,15 @@ export function getSolunarForecast(lat: number, lon: number, date: Date = new Da
       // General fishing: Peaks at full and new moon
       if (phaseName === "Полнолуние" || phaseName === "Новолуние") biteProbability += 20;
       break;
+  }
+  
+  // Adjust based on water body type
+  if (waterType === "river") {
+    // Rivers have currents, oxygen is better, fish are more active
+    biteProbability += 10;
+  } else if (waterType === "lake" || waterType === "reservoir") {
+    // Lakes and reservoirs are more sensitive to moon phase and stagnation
+    biteProbability -= 5;
   }
   
   // Ensure probability stays within 0-100%

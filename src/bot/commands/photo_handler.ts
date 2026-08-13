@@ -1,4 +1,4 @@
-import { Telegraf } from "telegraf";
+import { Telegraf, Markup } from "telegraf";
 import { analyzeCatch } from "../../services/ai_vision.js";
 
 export function setupPhotoHandler(bot: Telegraf) {
@@ -21,11 +21,20 @@ export function setupPhotoHandler(bot: Telegraf) {
         msg.message_id,
         undefined,
         `🎣 **Анализ улова**\n\n🐟 Вид рыбы: ${result.fishType}\n⚖️ Примерный вес: ${result.weightEstimate} кг\n📝 ${result.description}`,
-        { parse_mode: "Markdown" }
+        { 
+          parse_mode: "Markdown",
+          ...Markup.inlineKeyboard([
+            [Markup.button.callback("❌ Закрыть", "close_photo")]
+          ])
+        }
       );
     } catch (e) {
       console.error(e);
       await ctx.reply("Не удалось проанализировать фото. Пожалуйста, попробуйте еще раз.");
     }
+  });
+
+  bot.action("close_photo", async (ctx) => {
+    await ctx.deleteMessage();
   });
 }

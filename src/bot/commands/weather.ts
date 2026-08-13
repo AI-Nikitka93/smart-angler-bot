@@ -1,20 +1,17 @@
 import { Telegraf } from "telegraf";
 import { getSolunarForecast } from "../../services/solunar.js";
+import { detectWaterBody } from "../../services/overpass.js";
 
 export function setupWeatherCommand(bot: Telegraf) {
-  bot.command("weather", async (ctx) => {
-    const text = ctx.message.text;
-    const args = text.split(" ").slice(1);
+  bot.action(/^weather_(.+)_(.+)$/, async (ctx) => {
+    // Acknowledge the callback to stop the loading spinner on the button
+    await ctx.answerCbQuery("Загружаю прогноз погоды...");
     
-    if (args.length < 2) {
-      return ctx.reply("Использование: /weather <широта> <долгота>");
-    }
-    
-    const lat = parseFloat(args[0]);
-    const lon = parseFloat(args[1]);
+    const lat = parseFloat(ctx.match[1]);
+    const lon = parseFloat(ctx.match[2]);
     
     if (isNaN(lat) || isNaN(lon)) {
-      return ctx.reply("Неверные координаты. Пожалуйста, проверьте формат.");
+      return ctx.editMessageText("Неверные координаты. Пожалуйста, попробуйте еще раз.");
     }
     
     try {
@@ -23,21 +20,26 @@ export function setupWeatherCommand(bot: Telegraf) {
       const data = await res.json() as any;
       
       if (!data.current_weather) {
-        return ctx.reply("Не удалось получить данные о погоде для этой локации.");
+        return ctx.editMessageText("Не удалось получить данные о погоде для этой локации.");
       }
       
       const { temperature, windspeed } = data.current_weather;
       
-      const forecast = getSolunarForecast(lat, lon, new Date(), "Общая");
+      const waterBody = await detectWaterBody(lat, lon);
+      const forecast = getSolunarForecast(lat, lon, new Date(), "Общая", waterBody.type);
       
-      return ctx.reply(
+      const waterBodyText = waterBody.name ? `${waterBody.type} ${waterBody.name}` : "Неизвестный водоем";
+      
+      return ctx.editMessageText(
+        `🌍 Точка: ${lat.toFixed(4)}, ${lon.toFixed(4)}\n` +
+        `💧 Водоем: ${waterBodyText}\n\n` +
         `🌤 Текущая погода:\nТемпература: ${temperature}°C\nСкорость ветра: ${windspeed} км/ч\n\n` +
-        `🌑 Фаза луны: ${forecast.moonPhase} (${forecast.fraction}%)\n` +
+        `🌑 Фаза луны: ${forecast.moonPhase} (${Math.round(forecast.fraction * 100)}%)\n` +
         `🎣 Вероятность клева: ${forecast.probability}%\n`
       );
     } catch (error) {
       console.error(error);
-      return ctx.reply("Не удалось получить погоду.");
+      return ctx.editMessageText("Не удалось получить погоду.");
     }
   });
 }

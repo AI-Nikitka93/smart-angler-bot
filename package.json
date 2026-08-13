@@ -5,25 +5,27 @@
   "main": "api/webhook.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsx watch src/bot/index.ts",
+    "build": "tsc --noEmit",
+    "start": "tsx src/bot/server.ts",
+    "dev": "tsx watch src/bot/server.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@huggingface/inference": "^4.13.25",
+    "@libsql/client": "^0.17.4",
     "@supabase/supabase-js": "^2.45.0",
+    "@xenova/transformers": "^2.17.2",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.45.2",
-    "postgres": "^3.4.4",
     "suncalc": "^2.0.1",
     "telegraf": "^4.16.3",
+    "tsx": "^4.17.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.2.0",
     "@types/suncalc": "^1.9.2",
     "drizzle-kit": "^0.31.10",
-    "tsx": "^4.17.0",
     "typescript": "^5.5.4"
   }
 }

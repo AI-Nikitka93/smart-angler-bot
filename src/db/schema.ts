@@ -1,27 +1,30 @@
-import { pgTable, serial, text, timestamp, real } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   telegramId: text("telegram_id").notNull().unique(),
   username: text("username"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
-export const spots = pgTable("spots", {
-  id: serial("id").primaryKey(),
-  userId: serial("user_id").references(() => users.id).notNull(),
+export const spots = sqliteTable("spots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").references(() => users.id).notNull(),
   lat: real("lat").notNull(),
   lon: real("lon").notNull(),
   name: text("name"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  waterType: text("water_type"),
+  waterName: text("water_name"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
-export const catches = pgTable("catches", {
-  id: serial("id").primaryKey(),
-  userId: serial("user_id").references(() => users.id).notNull(),
-  spotId: serial("spot_id").references(() => spots.id),
+export const catches = sqliteTable("catches", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  spotId: integer("spot_id").references(() => spots.id),
   fishType: text("fish_type"),
   weight: real("weight"),
   photoUrl: text("photo_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
