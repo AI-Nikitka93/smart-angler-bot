@@ -1,4 +1,5 @@
 import { Telegraf } from "telegraf";
+import { getSolunarForecast } from "../../services/solunar.js";
 
 export function setupWeatherCommand(bot: Telegraf) {
   bot.command("weather", async (ctx) => {
@@ -6,14 +7,14 @@ export function setupWeatherCommand(bot: Telegraf) {
     const args = text.split(" ").slice(1);
     
     if (args.length < 2) {
-      return ctx.reply("Usage: /weather <lat> <lon>");
+      return ctx.reply("Использование: /weather <широта> <долгота>");
     }
     
     const lat = parseFloat(args[0]);
     const lon = parseFloat(args[1]);
     
     if (isNaN(lat) || isNaN(lon)) {
-      return ctx.reply("Invalid coordinates.");
+      return ctx.reply("Неверные координаты. Пожалуйста, проверьте формат.");
     }
     
     try {
@@ -22,14 +23,21 @@ export function setupWeatherCommand(bot: Telegraf) {
       const data = await res.json() as any;
       
       if (!data.current_weather) {
-        return ctx.reply("Could not fetch weather data for this location.");
+        return ctx.reply("Не удалось получить данные о погоде для этой локации.");
       }
       
       const { temperature, windspeed } = data.current_weather;
-      return ctx.reply(`🌤 Current weather:\nTemperature: ${temperature}°C\nWind speed: ${windspeed} km/h`);
+      
+      const forecast = getSolunarForecast(lat, lon, new Date(), "Общая");
+      
+      return ctx.reply(
+        `🌤 Текущая погода:\nТемпература: ${temperature}°C\nСкорость ветра: ${windspeed} км/ч\n\n` +
+        `🌑 Фаза луны: ${forecast.moonPhase} (${forecast.fraction}%)\n` +
+        `🎣 Вероятность клева: ${forecast.probability}%\n`
+      );
     } catch (error) {
       console.error(error);
-      return ctx.reply("Failed to get weather.");
+      return ctx.reply("Не удалось получить погоду.");
     }
   });
 }

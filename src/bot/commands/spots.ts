@@ -9,15 +9,15 @@ export function setupSpotsCommand(bot: Telegraf) {
     const args = text.split(" ").slice(1);
     
     if (args.length < 2) {
-      return ctx.reply("Usage: /addspot <lat> <lon> [name]");
+      return ctx.reply("Использование: /addspot <широта> <долгота> [название]");
     }
     
     const lat = parseFloat(args[0]);
     const lon = parseFloat(args[1]);
-    const name = args.slice(2).join(" ") || "Unnamed Spot";
+    const name = args.slice(2).join(" ") || "Новая точка";
     
     if (isNaN(lat) || isNaN(lon)) {
-      return ctx.reply("Invalid coordinates.");
+      return ctx.reply("Неверные координаты. Пожалуйста, проверьте формат.");
     }
     
     try {
@@ -41,10 +41,10 @@ export function setupSpotsCommand(bot: Telegraf) {
         name,
       });
       
-      return ctx.reply(`Spot "${name}" added successfully at ${lat}, ${lon}! 🎣`);
+      return ctx.reply(`Рыбное место "${name}" успешно добавлено на координатах ${lat}, ${lon}! 🎣`);
     } catch (error) {
       console.error(error);
-      return ctx.reply("Failed to add spot. Please try again.");
+      return ctx.reply("Не удалось сохранить точку. Попробуйте еще раз.");
     }
   });
 }

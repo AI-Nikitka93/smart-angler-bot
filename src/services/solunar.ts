@@ -1,25 +1,58 @@
 import * as SunCalc from "suncalc";
 
-export function getSolunarForecast(lat: number, lon: number, date: Date = new Date()) {
+type FishType = "Щука" | "Карп" | "Лещ" | "Судак" | "Общая";
+
+export function getSolunarForecast(lat: number, lon: number, date: Date = new Date(), fish: FishType = "Общая") {
   const moonIllumination = SunCalc.getMoonIllumination(date);
   const sunTimes = SunCalc.getTimes(date, lat, lon);
   
-  // Phase logic: 0 = New Moon, 0.5 = Full Moon
-  let phaseName = "New Moon";
-  if (moonIllumination.phase > 0.03 && moonIllumination.phase < 0.47) phaseName = "Waxing";
-  if (moonIllumination.phase >= 0.47 && moonIllumination.phase <= 0.53) phaseName = "Full Moon";
-  if (moonIllumination.phase > 0.53 && moonIllumination.phase < 0.97) phaseName = "Waning";
+  // Moon phases
+  const phase = moonIllumination.phase;
+  let phaseName = "Новолуние";
+  if (phase > 0.03 && phase < 0.25) phaseName = "Растущий полумесяц";
+  else if (phase >= 0.25 && phase < 0.47) phaseName = "Первая четверть";
+  else if (phase >= 0.47 && phase <= 0.53) phaseName = "Полнолуние";
+  else if (phase > 0.53 && phase < 0.75) phaseName = "Убывающая луна";
+  else if (phase >= 0.75 && phase <= 0.97) phaseName = "Последняя четверть";
+  else if (phase > 0.97) phaseName = "Новолуние";
   
-  // Basic forecast logic based on moon phase
-  let rating = 3; // 1 to 5
-  if (phaseName === "Full Moon" || phaseName === "New Moon") {
-    rating = 5;
+  // Calculate Base Biting Probability (0 to 100) based on fish type
+  let biteProbability = 50;
+  
+  switch (fish) {
+    case "Щука":
+      // Pike prefers New Moon and First Quarter
+      if (phaseName === "Новолуние" || phaseName === "Первая четверть") biteProbability += 30;
+      else if (phaseName === "Полнолуние") biteProbability -= 20;
+      break;
+    case "Карп":
+      // Carp prefers Waxing and Full Moon
+      if (phaseName === "Первая четверть" || phaseName === "Полнолуние") biteProbability += 35;
+      else if (phaseName === "Новолуние") biteProbability -= 15;
+      break;
+    case "Лещ":
+      // Bream loves Full Moon
+      if (phaseName === "Полнолуние") biteProbability += 40;
+      else if (phaseName === "Последняя четверть") biteProbability -= 10;
+      break;
+    case "Судак":
+      // Zander prefers New Moon and First Quarter
+      if (phaseName === "Новолуние" || phaseName === "Растущий полумесяц") biteProbability += 30;
+      else if (phaseName === "Полнолуние") biteProbability -= 25;
+      break;
+    default:
+      // General fishing: Peaks at full and new moon
+      if (phaseName === "Полнолуние" || phaseName === "Новолуние") biteProbability += 20;
+      break;
   }
   
+  // Ensure probability stays within 0-100%
+  biteProbability = Math.max(0, Math.min(100, biteProbability));
+
   return {
     moonPhase: phaseName,
-    fraction: moonIllumination.fraction,
-    rating,
+    fraction: Math.round(moonIllumination.fraction * 100),
+    probability: biteProbability,
     sunrise: sunTimes.sunrise,
     sunset: sunTimes.sunset
   };

@@ -1,0 +1,37 @@
+cis_geocoding_api:
+  name: "Open-Meteo Geocoding API"
+  url: "https://geocoding-api.open-meteo.com/v1/search"
+  reason: "100% free, excellent coverage of RF/RB (villages, lakes) with 'language=ru' support. No API key needed."
+
+cis_weather_api:
+  name: "Open-Meteo Weather API"
+  url: "https://api.open-meteo.com/v1/forecast"
+  reason: "No API key, hyper-local precision. Requires 'lang=ru' for Russian descriptions."
+
+moon_phase_strategy:
+  name: "Local Math (suncalc library)"
+  reason: "Zero limits, 100% precision for any coordinate in RF/RB. External APIs (like Stormglass) have strict free tiers and do not provide better moon phases than pure astronomical math."
+  
+solunar_theory_rf_rb:
+  pike:
+    name: "Щука"
+    best_phase: "New Moon & First Quarter"
+    best_weather: "Cloudy, light rain, pressure drops"
+  carp:
+    name: "Карп"
+    best_phase: "First Quarter to Full Moon"
+    best_weather: "Warm, stable high pressure"
+  bream:
+    name: "Лещ"
+    best_phase: "Full Moon (especially at night)"
+    best_weather: "Stable pressure, warm nights"
+  zander:
+    name: "Судак"
+    best_phase: "New Moon & First Quarter"
+    best_weather: "Clear water, sunset/night"
+    
+calculation_formula: |
+  1. Base score from Moon Phase (0-100%) based on the target species.
+  2. Modify by pressure trend (steady/rising is good, sharp drop is bad except for Pike).
+  3. Modify by temperature (too hot/cold decreases score for Carp, Pike likes cooler water).
+  4. Output the probability percentage.

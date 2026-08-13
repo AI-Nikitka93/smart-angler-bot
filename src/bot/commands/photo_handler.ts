@@ -4,7 +4,7 @@ import { analyzeCatch } from "../../services/ai_vision.js";
 export function setupPhotoHandler(bot: Telegraf) {
   bot.on("photo", async (ctx) => {
     try {
-      const msg = await ctx.reply("Analyzing your catch with AI...");
+      const msg = await ctx.reply("Анализирую ваш улов с помощью нейросети...");
       
       const photo = ctx.message.photo.pop();
       if (!photo) return;
@@ -20,12 +20,12 @@ export function setupPhotoHandler(bot: Telegraf) {
         ctx.chat.id,
         msg.message_id,
         undefined,
-        `🎣 **Catch Analysis**\n\n🐟 Species: ${result.fishType}\n⚖️ Estimated Weight: ${result.weightEstimate}kg\n📝 ${result.description}`,
+        `🎣 **Анализ улова**\n\n🐟 Вид рыбы: ${result.fishType}\n⚖️ Примерный вес: ${result.weightEstimate} кг\n📝 ${result.description}`,
         { parse_mode: "Markdown" }
       );
     } catch (e) {
       console.error(e);
-      await ctx.reply("Failed to analyze the photo. Please try again.");
+      await ctx.reply("Не удалось проанализировать фото. Пожалуйста, попробуйте еще раз.");
     }
   });
 }
