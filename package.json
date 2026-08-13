@@ -13,7 +13,7 @@
     "@huggingface/inference": "^4.13.25",
     "@supabase/supabase-js": "^2.45.0",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.33.0",
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.4",
     "suncalc": "^2.0.1",
     "telegraf": "^4.16.3",
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@types/node": "^22.2.0",
     "@types/suncalc": "^1.9.2",
+    "drizzle-kit": "^0.31.10",
     "tsx": "^4.17.0",
     "typescript": "^5.5.4"
   }
