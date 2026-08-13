@@ -1,5 +1,8 @@
 import { Telegraf } from "telegraf";
 import { env } from "../utils/env.js";
+import { setupSpotsCommand } from "./commands/spots.js";
+import { setupWeatherCommand } from "./commands/weather.js";
+import { setupPhotoHandler } from "./commands/photo_handler.js";
 
 export const bot = new Telegraf(env.BOT_TOKEN);
 
@@ -11,4 +14,7 @@ bot.help((ctx) => {
   ctx.reply("Send me a photo of a fish or your location.");
 });
 
-// Add more scenes and commands here
+// Register commands
+setupSpotsCommand(bot);
+setupWeatherCommand(bot);
+setupPhotoHandler(bot);
